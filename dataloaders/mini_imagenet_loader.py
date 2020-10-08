@@ -10,8 +10,8 @@ ROOT_PATH = './mini_imagenet/'
 
 class MiniImageNet(Dataset):
 
-    def __init__(self, setname):
-        csv_path = osp.join(ROOT_PATH, setname + '.csv')
+    def __init__(self, setname, splits_path):
+        csv_path = osp.join(splits_path, setname + '.csv')
         lines = [x.strip() for x in open(csv_path, 'r').readlines()][1:]
 
         data = []

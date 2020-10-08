@@ -13,7 +13,7 @@ import os
 
 
 from samplers.episodic_batch_sampler import EpisodicBatchSampler
-from dataloaders.mini_imagenet_loader import MiniImageNet
+from dataloaders.mini_imagenet_loader import MiniImageNet, ROOT_PATH
 from models.convnet_mini import ConvNet
 from models.identity import Identity
 from utils import AverageMeter, compute_accuracy, euclidean_dist, mkdir
@@ -26,8 +26,7 @@ model_names = sorted(name for name in models.__dict__
 model_names.append('default_convnet')
 
 parser = argparse.ArgumentParser(description='Pytorch Prototypical Networks Testing')
-parser.add_argument('--train_dir', type=str, help='path to training data (default: none)')
-parser.add_argument('--test_dir', type=str, metavar='train_dir', help='path to validation data')
+parser.add_argument('--splits_path', type=str, default=ROOT_PATH, help='path to dir with csv files containing train/dev/test examples')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' + ' | '.join(model_names) + ' (default: resnet18)')
@@ -95,7 +94,7 @@ def main():
     cudnn.benchmark = True
 
     # Testing data
-    test_dataset = MiniImageNet('test')
+    test_dataset = MiniImageNet('test', args.splits_path)
 
     test_sampler = EpisodicBatchSampler(test_dataset.labels, args.n_episodes, args.n_way, args.n_support + args.n_query)
     test_loader = DataLoader(dataset=test_dataset, batch_sampler=test_sampler,
@@ -129,6 +128,7 @@ def test(test_loader, model, args):
             logits = euclidean_dist(model(data_query), class_prototypes)
             loss = F.cross_entropy(logits, labels)
             acc = compute_accuracy(logits, labels)
+            import ipdb; ipdb.set_trace()
 
             # Record loss and accuracy
             losses.update(loss.item(), data_query.size(0))

@@ -20,7 +20,7 @@ from models.convnet_mini import ConvNet
 from models.identity import Identity
 from utils import AverageMeter, save_checkpoint, compute_accuracy, weights_init_xavier, mkdir, euclidean_dist
 from samplers.episodic_batch_sampler import EpisodicBatchSampler
-from dataloaders.mini_imagenet_loader import MiniImageNet
+from dataloaders.mini_imagenet_loader import MiniImageNet, ROOT_PATH
 from torch.utils.data import DataLoader
 
 
@@ -29,8 +29,7 @@ model_names = sorted(name for name in models.__dict__ if name.islower() and not 
 model_names.append('default_convnet')
 
 parser = argparse.ArgumentParser(description='PyTorch Prototypical Networks Training')
-parser.add_argument('--train_dir', type=str, help='path to training data (default: none)')
-parser.add_argument('--val_dir', type=str, metavar='train_dir', help='path to validation data')
+parser.add_argument('--splits_path', type=str, default=ROOT_PATH, help='path to dir with csv files containing train/dev/test examples')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet18',
                     choices=model_names,
                     help='model architecture: ' + ' | '.join(model_names) + ' (default: resnet18)')
@@ -237,13 +236,13 @@ def main_worker(gpu, ngpus_per_node, args):
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     # Data loading code
-    train_dataset = MiniImageNet('train')
+    train_dataset = MiniImageNet('train', args.splits_path)
     train_sampler = EpisodicBatchSampler(train_dataset.labels, args.n_episodes_train, args.n_way_train,
                                          args.n_support + args.n_query_train)
     train_loader = DataLoader(dataset=train_dataset, batch_sampler=train_sampler, num_workers=args.workers,
                               pin_memory=True)
 
-    val_dataset = MiniImageNet('val')
+    val_dataset = MiniImageNet('val', args.splits_path)
     val_sampler = EpisodicBatchSampler(val_dataset.labels, args.n_episodes_val, args.n_way_val,
                                        args.n_support + args.n_query_val)
     val_loader = DataLoader(dataset=val_dataset, batch_sampler=val_sampler, num_workers=args.workers,
