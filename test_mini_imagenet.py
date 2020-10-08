@@ -128,7 +128,6 @@ def test(test_loader, model, args):
             logits = euclidean_dist(model(data_query), class_prototypes)
             loss = F.cross_entropy(logits, labels)
             acc = compute_accuracy(logits, labels)
-            import ipdb; ipdb.set_trace()
 
             # Record loss and accuracy
             losses.update(loss.item(), data_query.size(0))
