@@ -10,7 +10,7 @@ ROOT_PATH = './mini_imagenet/'
 
 class MiniImageNet(Dataset):
 
-    def __init__(self, setname, splits_path):
+    def __init__(self, setname, splits_path, root_path=ROOT_PATH):
         csv_path = osp.join(splits_path, setname + '.csv')
         lines = [x.strip() for x in open(csv_path, 'r').readlines()][1:]
 
@@ -23,7 +23,7 @@ class MiniImageNet(Dataset):
 
         for idx, l in enumerate(lines):
             name, wnid = l.split(',')
-            path = osp.join(ROOT_PATH, 'images', name)
+            path = osp.join(root_path, 'images', name)
             if wnid not in self.wnids:
                 self.wnids.append(wnid)
                 lb += 1

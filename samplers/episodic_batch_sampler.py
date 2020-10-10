@@ -43,3 +43,17 @@ class EpisodicBatchSampler(data.Sampler):
                 batch.append(l[pos])
             batch = torch.stack(batch).t().reshape(-1)
             yield batch
+
+class EpisodicBatchSamplerWithClass(EpisodicBatchSampler):
+    def __iter__(self):
+        for batch in range(self.n_episodes):
+            batch = []
+            classes = torch.randperm(len(self.samples_indices))[:self.n_way]
+            for c in classes:
+                l = self.samples_indices[c]
+                pos = torch.randperm(len(l))[:self.n_samples]
+                batch.append(l[pos])
+            batch = torch.stack(batch).t().reshape(-1)
+            yield batch
+            #batch_classes = classes.repeat(1,self.n_samples).t().reshape(-1)
+            #yield batch, batch_classes
